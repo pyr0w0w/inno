@@ -1,14 +1,21 @@
 # inno
 
 requirements:
+<br>
 mongodb
+<br>
 Flask
+<br>
 pymongo
+<br>
 python 2.7
+<br>
 tweepy
-
+<br>
 api endpoints:
+<br>
 @app.route('/api/v1/add', methods=['GET'])  q(add item to streamlistener)
+<br>
 @app.route('/api/v1/download', methods=['GET']) q(to download a collection)
 @app.route('/api/v1/tweets/regex', methods=['GET']), key,pattern(substring),type(starts,ends,equal,contains)
 @app.route('/api/v1/tweets/cond', methods=['GET']) ,key,condition(< > ==),value
