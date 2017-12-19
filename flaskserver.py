@@ -13,6 +13,7 @@ from bson.json_util import dumps
 import pymongo
 
 class DBhandler:
+    """for handling mongo DB"""
     def __init__(self):
         try:
             self.client=MongoClient()
@@ -22,6 +23,7 @@ class DBhandler:
             #return False
 
     def createConnection(self,username,password,port):
+        """create connection"""
         try:
             self.client=MongoClient('mongodb://%s:%s@127.0.0.1:%s' % (username, password,port))
             return True
@@ -29,6 +31,7 @@ class DBhandler:
             return False
 
     def closeConnection(self):
+        """close connection"""
         try:
             self.client.close()
             return [True]
@@ -36,6 +39,7 @@ class DBhandler:
             return [False,e]
 
     def insert(self,database,collection,jsondata):
+        """add data to mongo DB"""
         try:
             db=self.client[database]
             #print(type(jsondata._json))
@@ -49,6 +53,7 @@ class DBhandler:
 
 
     def getdata(self,database,collection):
+        """get data from mongo DB"""
         try:
             db=self.client[database]
             res=db[collection].find()
@@ -57,6 +62,7 @@ class DBhandler:
             return [False,e]
 
     def getSortedData(self,database,collection,key,reverse):
+        """returns sorted data on a key"""
         try:
             db=self.client[database]
             if reverse:
@@ -68,6 +74,7 @@ class DBhandler:
             return [False,e]
 
     def getrangeFilter(self,database,collection,key,begin,end):
+        """return fields satisfing range filter"""
         try:
             db=self.client[database]
             res=db[collection].find({key:{'$gte':begin,'$lte':end}})
@@ -76,7 +83,7 @@ class DBhandler:
             return [False,e]
 
     def getregexFilter(self,database,collection,key,patt,ty):
-        #db.collectionname.find({'files':{'$regex':'^File
+        """returns fields with matching pattern"""
         try:
             db=self.client[database]
             if ty=="starts":
@@ -92,6 +99,7 @@ class DBhandler:
             return [False,e]
 
     def getconditionFilter(self,database,collection,key,ty,value):
+        """returns fields with given condition(less than,equal or greater than)"""
         try:
             db=self.client[database]
             if ty=="less":
@@ -107,23 +115,24 @@ class DBhandler:
 class listenToItem(StreamListener):
 
     def on_data(self, data):
+        """on status post event"""
         try:
-            #print(data)
             db=DBhandler()
             db.createConnection(username='',password='',port=27017)
             db.insert("innodb","tweets",data)
-            #print(data)
             db.closeConnection()
         except Exception,e:
             print("Error on_data: %s" % str(e))
             return False
 
     def on_error(self, status):
+        """on error event while listening"""
         pass
 
 
 class addItemToTrack():
     def add(self,value):
+        """add item to listen(add to streaming api)"""
         try:
             consumer_key = '8rYxIg0LYczfIXqDFWOeoHuOk'
             consumer_secret = '0laLyFydbG5yRqMchWJ1VqOTzDYHaxCQLMSHDsaqZb3Mg6rdeA'
@@ -151,6 +160,7 @@ class TwitterAPI:
         pass
 
     def getTrendsByName(self,id=1):
+        """" returns trending topics by name"""
         globaltrends=self.api.trends_place(id)
         trends= [t["name"] for t in globaltrends[0]["trends"]]
         return trends
@@ -158,6 +168,7 @@ class TwitterAPI:
 
 
     def getTrends(self,id=1):
+        """" returns trending topics by name"""
         try:
             globaltrends=self.api.trends_place(id)
             return [True,[t["name"] for t in globaltrends[0]["trends"]]]
@@ -167,6 +178,7 @@ class TwitterAPI:
 
     def searchTweet(self,query='',lang='',locale='',geocode='',result_type='',
                     count='',until='',since_id='',max_id=''):
+        """search live tweets"""
         try:
             search_results = self.api.search(q=query,lang=lang,locale=locale,geocode=geocode,
             result_type=result_type,count=count,until=until,since_id=since_id,max_id=max_id,)
@@ -177,26 +189,6 @@ class TwitterAPI:
             print(e)
             return [False,e]
 
-app = Flask(__name__)
-
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
-        'done': False
-    }
-]
-
-@app.route('/todo/api/v1.0/tasks', methods=['GET'])
-def get_tasks():
-    return jsonify({'tasks': tasks})
 
 @app.route('/api/v1/add', methods=['GET'])
 def addItemToListen():
@@ -274,10 +266,11 @@ def getSortedItemTweets():
 
 @app.route('/api/v1/tweets/range', methods=['GET'])
 def getrangeTweet():
+    """ calls getrangeFilter and returns matching fields""""
     try:
         item1 = request.args.get('key')
-        item2 = request.args.get('reverse')
-        item3 =  request.args.get('value')
+        item2 = request.args.get('start')
+        item3 =  request.args.get('end')
         db=DBhandler()
         db.createConnection(username='',password='',port=27017)
         ret=db.getrangeFilter("innodb","tweets",item1,item2,item3)
@@ -291,6 +284,7 @@ def getrangeTweet():
 
 @app.route('/api/v1/tweets/cond', methods=['GET'])
 def getcondTweets():
+        """ calls getcondFilter and returns matching fields""""
     try:
         item1 = request.args.get('key')
         item2 = request.args.get('condition')
@@ -308,6 +302,7 @@ def getcondTweets():
 
 @app.route('/api/v1/tweets/regex', methods=['GET'])
 def getregexTweets():
+    """ calls getregexFilter and returns matching fields""""
     try:
         item1 = request.args.get('key')
         item2 = request.args.get('patt')
@@ -325,7 +320,7 @@ def getregexTweets():
 
 @app.route('/api/v1/download', methods=['GET'])
 def sendFile():
-    #content = str(request.form['jsonval'])
+    """ downloads a file in json format of a collection of mongodb""""
     try:
         item1 = request.args.get('db')
         db=DBhandler()
@@ -339,6 +334,7 @@ def sendFile():
     except Exception,e:
         return jsonify({'status':"failed","debug":str(e)})
 
+app = Flask(__name__)
 
 if __name__ == '__main__':
     app.run(debug=True)
