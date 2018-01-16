@@ -134,11 +134,10 @@ class addItemToTrack():
     def add(self,value):
         """add item to listen(add to streaming api)"""
         try:
-            consumer_key = '8rYxIg0LYczfIXqDFWOeoHuOk'
-            consumer_secret = '0laLyFydbG5yRqMchWJ1VqOTzDYHaxCQLMSHDsaqZb3Mg6rdeA'
-            access_token = '2900259488-ujnZMsE0CCGZbaIZfv2wjMsEGuU2dyItgTtxoZM'
-            access_token_secret = 'Kxv1R1Twob6kp4uXGNkNHeyA9V5pkVL6W67WCGbvpcFG4'
-            # OAuth process, using the keys and tokens
+            consumer_key = ''
+            consumer_secret = ''
+            access_token = ''
+            access_token_secret = ''
             auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
             auth.set_access_token(access_token, access_token_secret)
             twitter_stream = Stream(auth, listenToItem())
@@ -149,10 +148,10 @@ class addItemToTrack():
             return e
 
 class TwitterAPI:
-    consumer_key = '8rYxIg0LYczfIXqDFWOeoHuOk'
-    consumer_secret = '0laLyFydbG5yRqMchWJ1VqOTzDYHaxCQLMSHDsaqZb3Mg6rdeA'
-    access_token = '2900259488-ujnZMsE0CCGZbaIZfv2wjMsEGuU2dyItgTtxoZM'
-    access_token_secret = 'Kxv1R1Twob6kp4uXGNkNHeyA9V5pkVL6W67WCGbvpcFG4'
+    consumer_key = ''
+    consumer_secret = ''
+    access_token = ''
+    access_token_secret = ''
     def __init__(self):
         self.auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         self.auth.set_access_token(self.access_token, self.access_token_secret)
